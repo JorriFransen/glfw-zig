@@ -7,6 +7,7 @@ const assert = std.debug.assert;
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const maybe_glfw_dep = b.option(std.Build.LazyPath, "glfw", "Set the path to the glfw source");
 
     const shared = b.option(bool, "shared", "Build as shared library") orelse false;
     const use_x11 = b.option(bool, "x11", "Build with X11. (Linux only)") orelse true;
@@ -16,7 +17,7 @@ pub fn build(b: *std.Build) !void {
     const use_gles = b.option(bool, "gles", "Build with GLES. (MacOs deprecated)") orelse false;
     const use_metal = b.option(bool, "metal", "Build with metal. (MacOs only)") orelse true;
 
-    const glfw_dep = b.dependency("glfw", .{});
+    const glfw_source = GlfwSource.init(b, maybe_glfw_dep);
 
     const lib = b.addLibrary(.{
         .name = "glfw",
@@ -29,11 +30,11 @@ pub fn build(b: *std.Build) !void {
             .link_libc = true,
         }),
     });
-    lib.addIncludePath(glfw_dep.path("include"));
+    lib.addIncludePath(glfw_source.path("include"));
 
     if (shared) lib.root_module.addCMacro("_GLFW_BUILD_DLL", "1");
 
-    lib.installHeadersDirectory(glfw_dep.path("include/GLFW"), "GLFW", .{});
+    lib.installHeadersDirectory(glfw_source.path("include/GLFW"), "GLFW", .{});
 
     const include_src_flag = "-Isrc";
 
@@ -56,7 +57,7 @@ pub fn build(b: *std.Build) !void {
 
             const flags = [_][]const u8{ include_src_flag, "-D_GLFW_WIN32" };
             lib.addCSourceFiles(.{
-                .root = glfw_dep.path(""),
+                .root = glfw_source.path(""),
                 .files = &base_sources ++ &windows_sources,
                 .flags = &flags,
             });
@@ -77,7 +78,7 @@ pub fn build(b: *std.Build) !void {
                 try flags.append("-D_GLFW_WAYLAND");
                 try sources.appendSlice(&linux_wl_sources);
 
-                const wayland_gen = try WaylandGenerator.generate(b, glfw_dep);
+                const wayland_gen = try WaylandGenerator.generate(b, glfw_source);
                 lib.step.dependOn(wayland_gen.step);
                 lib.addIncludePath(wayland_gen.include_dir);
             }
@@ -85,7 +86,7 @@ pub fn build(b: *std.Build) !void {
             try flags.append(include_src_flag);
 
             lib.addCSourceFiles(.{
-                .root = glfw_dep.path(""),
+                .root = glfw_source.path(""),
                 .files = sources.slice(),
                 .flags = flags.slice(),
             });
@@ -180,6 +181,29 @@ const wayland_xml_sources = [_][]const u8{
     "xdg-shell.xml",
 };
 
+const GlfwSource = struct {
+    owner: *std.Build,
+    source: union(enum) {
+        default: *std.Build.Dependency,
+        lazypath: std.Build.LazyPath,
+    },
+
+    pub fn init(b: *std.Build, maybe_lazypath: ?std.Build.LazyPath) GlfwSource {
+        if (maybe_lazypath) |lp| {
+            return .{ .owner = b, .source = .{ .lazypath = lp } };
+        } else {
+            return .{ .owner = b, .source = .{ .default = b.dependency("glfw", .{}) } };
+        }
+    }
+
+    pub fn path(this: *const GlfwSource, sub_path: []const u8) std.Build.LazyPath {
+        switch (this.source) {
+            .default => |d| return d.path(sub_path),
+            .lazypath => |lp| return lp.path(this.owner, sub_path),
+        }
+    }
+};
+
 const WaylandGenerator = struct {
     const Result = struct {
         step: *std.Build.Step,
@@ -190,7 +214,7 @@ const WaylandGenerator = struct {
     scanner: []const u8,
     write_file: *std.Build.Step.WriteFile,
 
-    pub fn generate(b: *std.Build, glfw_dep: *std.Build.Dependency) !Result {
+    pub fn generate(b: *std.Build, glfw_source: GlfwSource) !Result {
         var ctx = @This(){
             .owner = b,
             .scanner = try pkgConfig(b, "wayland-scanner", &.{"--variable=wayland_scanner"}),
@@ -198,7 +222,7 @@ const WaylandGenerator = struct {
         };
         ctx.write_file.step.name = "WriteFiles wayland-protocols";
 
-        const xml_lazy_dir = glfw_dep.path(wayland_xml_dir);
+        const xml_lazy_dir = glfw_source.path(wayland_xml_dir);
         for (wayland_xml_sources) |xml_name| {
             assert(std.mem.endsWith(u8, xml_name, ".xml"));
 
