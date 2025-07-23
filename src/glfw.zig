@@ -6,10 +6,9 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub const c = @cImport({
+    @cDefine("GLFW_INCLUDE_VULKAN", "1");
     @cInclude("GLFW/glfw3.h");
 });
-
-const vk = @import("vulkan");
 
 pub const CLIENT_API: c_int = c.GLFW_CLIENT_API;
 pub const RESIZABLE: c_int = c.GLFW_RESIZABLE;
@@ -23,6 +22,12 @@ pub const FALSE = c.GLFW_FALSE;
 
 pub const Window = ?*c.GLFWwindow;
 pub const Monitor = ?*c.GLFWmonitor;
+
+const VkInstance = c.VkInstance;
+const VkSurfaceKHR = c.VkSurfaceKHR;
+const VkAllocationCallbacks = c.VkAllocationCallbacks;
+const VkProc = c.GLFWvkproc;
+const VkResult = enum(i32) { _ };
 
 inline fn f(comptime name: []const u8, comptime T: type) *const T {
     return @extern(*const T, .{ .name = name });
@@ -44,9 +49,9 @@ pub const setWindowRefreshCallback = f("glfwSetWindowRefreshCallback", fn (windo
 pub const setWindowSizeCallback = f("glfwSetWindowSizeCallback", fn (window: Window, callback: GLFWwindowsizefun) callconv(.c) GLFWwindowsizefun);
 pub const destroyWindow = f("glfwDestroyWindow", fn (window: Window) callconv(.c) void);
 pub const terminate = f("glfwTerminate", fn () callconv(.c) void);
-pub const getFramebufferSize = f("glfwGetFramebufferSize", fn (window: ?*const c.GLFWwindow, width: ?*c_int, height: ?*c_int) callconv(.c) void);
-pub const swapBuffers = f("glfwSwapBuffers", fn (window: ?*const c.GLFWwindow) callconv(.c) void);
-pub const getKey = f("glfwGetKey", fn (window: ?*const c.GLFWwindow, key: c_int) callconv(.c) c_int);
+pub const getFramebufferSize = f("glfwGetFramebufferSize", fn (window: Window, width: ?*c_int, height: ?*c_int) callconv(.c) void);
+pub const swapBuffers = f("glfwSwapBuffers", fn (window: Window) callconv(.c) void);
+pub const getKey = f("glfwGetKey", fn (window: Window, key: c_int) callconv(.c) c_int);
 
 pub const platformSupported = f("glfwPlatformSupported", fn (platform: Platform) callconv(.c) c_int);
 pub const getPlatform = f("glfwGetPlatform", fn () callconv(.c) Platform);
@@ -55,8 +60,8 @@ pub const getRequiredInstanceExtensions = f("glfwGetRequiredInstanceExtensions",
 pub const setWindowUserPointer = f("glfwSetWindowUserPointer", fn (window: Window, ptr: *anyopaque) callconv(.c) void);
 pub const getWindowUserPointer = f("glfwGetWindowUserPointer", fn (window: Window) callconv(.c) *anyopaque);
 
-pub const getInstanceProcAddress = f("glfwGetInstanceProcAddress", fn (instance: vk.Instance, proc_name: [*:0]const u8) callconv(vk.vulkan_call_conv) vk.PfnVoidFunction);
-pub const createWindowSurface = f("glfwCreateWindowSurface", fn (instance: vk.Instance, window: *c.GLFWwindow, allocator: ?*const vk.AllocationCallbacks, surface: *vk.SurfaceKHR) callconv(.c) vk.Result);
+pub const getInstanceProcAddress = f("glfwGetInstanceProcAddress", fn (instance: VkInstance, proc_name: [*:0]const u8) callconv(.c) VkProc);
+pub const createWindowSurface = f("glfwCreateWindowSurface", fn (instance: VkInstance, window: Window, allocator: ?*const VkAllocationCallbacks, surface: *VkSurfaceKHR) callconv(.c) VkResult);
 
 pub const GLFWkeyfun = *const fn (window: Window, key: c_int, scancode: c_int, action: Action, mods: c_int) callconv(.c) void;
 pub const GLFWframebuffersizefun = *const fn (window: Window, width: c_int, height: c_int) callconv(.c) void;
