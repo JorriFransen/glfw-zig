@@ -2800,7 +2800,7 @@ pub const destroyWindow = f("glfwDestroyWindow", fn (window: *Window) callconv(.
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const windowShouldClose = f("glfwWindowShouldClose", fn (window: *Window) callconv(.c) void);
+pub const windowShouldClose = f("glfwWindowShouldClose", fn (window: *Window) callconv(.c) c_int);
 
 /// @brief Sets the close flag of the specified window.
 ///
