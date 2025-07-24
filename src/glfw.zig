@@ -2,10 +2,10 @@ inline fn f(comptime name: []const u8, comptime T: type) *const T {
     return @extern(*const T, .{ .name = name });
 }
 
-const VkResult = enum(i32) {};
-const VkInstance = enum(usize) {};
-const VkPhysicalDevice = enum(usize) {};
-const VkSurfaceKHR = enum(usize) {};
+const VkResult = enum(i32) { _ };
+const VkInstance = enum(usize) { _ };
+const VkPhysicalDevice = enum(usize) { _ };
+const VkSurfaceKHR = enum(usize) { _ };
 const VkAllocationCallbacks = opaque {};
 const VkExtensionProperties = extern struct {
     extensionName: [256]u8,
@@ -17,33 +17,12 @@ const PFN_vkGetInstanceProcAddr = *const fn (VkInstance, [*:0]const u8) callconv
 const PFN_vkEnumerateInstanceExtensionProperties = *const fn ([*:0]const u8, *u32, [*]VkExtensionProperties) callconv(.c) VkResult;
 
 pub const InitHint = enum(c_int) {
-    /// @brief Platform selection init hint.
-    ///
-    ///  Platform selection [init hint](@ref GLFW_PLATFORM).
     platform = PLATFORM,
-    /// @brief Joystick hat buttons init hint.
-    ///
-    ///  Joystick hat buttons [init hint](@ref GLFW_JOYSTICK_HAT_BUTTONS).
     joystick_hat_buttons = JOYSTICK_HAT_BUTTONS,
-    /// @brief ANGLE rendering backend init hint.
-    ///
-    ///  ANGLE rendering backend [init hint](@ref GLFW_ANGLE_PLATFORM_TYPE_hint).
     angle_platform_type = ANGLE_PLATFORM_TYPE,
-    /// @brief macOS specific init hint.
-    ///
-    ///  macOS specific [init hint](@ref GLFW_COCOA_CHDIR_RESOURCES_hint).
     cocoa_chdir_resources = COCOA_CHDIR_RESOURCES,
-    /// @brief macOS specific init hint.
-    ///
-    ///  macOS specific [init hint](@ref GLFW_COCOA_MENUBAR_hint).
     cocoa_menubar = COCOA_MENUBAR,
-    /// @brief Wayland specific init hint.
-    ///
-    ///  Wayland specific [init hint](@ref GLFW_WAYLAND_LIBDECOR_hint).
     wayland_libdecor = WAYLAND_LIBDECOR,
-    /// @brief X11 specific init hint.
-    ///
-    ///  X11 specific [init hint](@ref GLFW_X11_XCB_VULKAN_SURFACE_hint).
     x11_cxb_vulkan_surface = X11_XCB_VULKAN_SURFACE,
 };
 
@@ -76,6 +55,12 @@ pub const Platform = enum(c_int) {
     pub fn toInitHintValue(value: Platform) InitHintValue {
         return @enumFromInt(@intFromEnum(value));
     }
+};
+
+pub const Action = enum(c_int) {
+    release = RELEASE,
+    press = PRESS,
+    REPEAT = REPEAT,
 };
 
 // @name GLFW version macros
@@ -1455,7 +1440,7 @@ pub const WindowContentScaleFun = *const fn (window: *Window, xscale: f32, yscal
 ///  @glfw3 Added window handle and modifier mask parameters.
 ///
 ///  @ingroup input
-pub const MouseButtonFun = *const fn (window: *Window, button: c_int, action: c_int, mods: c_int) callconv(.c) void;
+pub const MouseButtonFun = *const fn (window: *Window, button: c_int, action: Action, mods: c_int) callconv(.c) void;
 
 /// @brief The function pointer type for cursor position callbacks.
 ///
@@ -1542,7 +1527,7 @@ pub const ScrollFun = *const fn (window: *Window, xoffset: f64, yoffset: f64) ca
 ///  @glfw3 Added window handle, scancode and modifier mask parameters.
 ///
 ///  @ingroup input
-pub const KeyFun = *const fn (window: *Window, key: c_int, scancode: c_int, action: c_int, mods: c_int) callconv(.c) void;
+pub const KeyFun = *const fn (window: *Window, key: c_int, scancode: c_int, action: Action, mods: c_int) callconv(.c) void;
 
 /// @brief The function pointer type for Unicode character callbacks.
 ///
@@ -2124,7 +2109,7 @@ pub const setErrorCallback = f("glfwSetErrorCallback", fn (callback: ErrorFun) c
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub const getPlatform = f("glfwGetPlatform", fn () callconv(.c) c_int);
+pub const getPlatform = f("glfwGetPlatform", fn () callconv(.c) Platform);
 
 /// @brief Returns whether the library includes support for the specified platform.
 ///
@@ -4432,7 +4417,7 @@ pub const getKeyScancode = f("glfwGetKeyScancode", fn (key: c_int) callconv(.c) 
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup input
-pub const getKey = f("glfwGetKey", fn (window: *Window, key: c_int) callconv(.c) c_int);
+pub const getKey = f("glfwGetKey", fn (window: *Window, key: c_int) callconv(.c) Action);
 
 /// @brief Returns the last reported state of a mouse button for the specified
 ///  window.
@@ -5849,7 +5834,7 @@ pub const vulkanSupported = f("glfwVulkanSupported", fn () callconv(.c) c_int);
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup vulkan
-pub const getRequiredInstanceExtensions = f("glfwGetRequiredInstanceExtensions", fn (count: *u32) callconv(.c) [*][*:0]const u8);
+pub const getRequiredInstanceExtensions = f("glfwGetRequiredInstanceExtensions", fn (count: *u32) callconv(.c) ?[*][*:0]const u8);
 
 // #if defined(VK_VERSION_1_0)
 
@@ -5996,6 +5981,6 @@ pub const getPhysicalDevicePresentationSupport = f("glfwGetPhysicalDevicePresent
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup vulkan
-pub const createWindowSurface = f("glfwCreateWindowSurface", fn (instance: VkInstance, window: *Window, allocator: *VkAllocationCallbacks, surface: *VkSurfaceKHR) callconv(.c) VkResult);
+pub const createWindowSurface = f("glfwCreateWindowSurface", fn (instance: VkInstance, window: *Window, allocator: ?*VkAllocationCallbacks, surface: *VkSurfaceKHR) callconv(.c) VkResult);
 
 // #endif /*VK_VERSION_1_0*/
