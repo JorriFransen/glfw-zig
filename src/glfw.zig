@@ -83,53 +83,22 @@
 //     repeat = 2,
 // };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // newapistart
 
+inline fn f(comptime name: []const u8, comptime T: type) *const T {
+    return @extern(*const T, .{ .name = name });
+}
+
 const VkResult = enum(i32) {};
+const VkInstance = enum(usize) {};
 const VkExtensionProperties = extern struct {
     extensionName: [256]u8,
     specVersion: u32,
 };
 
-const PFN_vkVoidFunction = *const fn() callconv(.c) void;
-const PFN_vkGetInstanceProcAddr = *const fn(VkInstance, [*:0]const u8) callconv(.c) PFN_vkVoidFunction;
-const PFN_vkEnumerateInstanceExtensionProperties = *const fn([*:0]const u8, *u32, [*]VkExtensionProperties) callconv(.c) VkResult;
-
+const PFN_vkVoidFunction = *const fn () callconv(.c) void;
+const PFN_vkGetInstanceProcAddr = *const fn (VkInstance, [*:0]const u8) callconv(.c) PFN_vkVoidFunction;
+const PFN_vkEnumerateInstanceExtensionProperties = *const fn ([*:0]const u8, *u32, [*]VkExtensionProperties) callconv(.c) VkResult;
 
 // @name GLFW version macros
 //  @{
@@ -173,7 +142,6 @@ pub const FALSE = 0;
 ///! @name Key and button actions
 ///  @{
 ///! @brief The key or mouse button was released.
-
 ///  The key or mouse button was released.
 ///
 ///  @ingroup input
@@ -204,14 +172,12 @@ pub const HAT_UP = 1;
 pub const HAT_RIGHT = 2;
 pub const HAT_DOWN = 4;
 pub const HAT_LEFT = 8;
-pub const HAT_RIGHT_UP = (GLFW_HAT_RIGHT | GLFW_HAT_UP);
-pub const HAT_RIGHT_DOWN = (GLFW_HAT_RIGHT | GLFW_HAT_DOWN);
-pub const HAT_LEFT_UP = (GLFW_HAT_LEFT  | GLFW_HAT_UP);
-pub const HAT_LEFT_DOWN = (GLFW_HAT_LEFT  | GLFW_HAT_DOWN);
+pub const HAT_RIGHT_UP = (HAT_RIGHT | HAT_UP);
+pub const HAT_RIGHT_DOWN = (HAT_RIGHT | HAT_DOWN);
+pub const HAT_LEFT_UP = (HAT_LEFT | HAT_UP);
+pub const HAT_LEFT_DOWN = (HAT_LEFT | HAT_DOWN);
 
-// @ingroup input
 pub const KEY_UNKNOWN = -1;
-// @}
 
 // @defgroup keys Keyboard key tokens
 //  @brief Keyboard key tokens.
@@ -234,7 +200,7 @@ pub const KEY_UNKNOWN = -1;
 //     "BACKSPACE", etc.)
 //
 //  @ingroup input
-/  @{
+//  @{
 
 /// Printable keys
 pub const KEY_SPACE = 32;
@@ -373,9 +339,7 @@ pub const KEY_RIGHT_ALT = 346;
 pub const KEY_RIGHT_SUPER = 347;
 pub const KEY_MENU = 348;
 
-pub const KEY_LAST = GLFW_KEY_MENU;
-
-// @}
+pub const KEY_LAST = KEY_MENU;
 
 // @defgroup mods Modifier key flags
 // @brief Modifier key flags.
@@ -429,10 +393,10 @@ pub const MOUSE_BUTTON_5 = 4;
 pub const MOUSE_BUTTON_6 = 5;
 pub const MOUSE_BUTTON_7 = 6;
 pub const MOUSE_BUTTON_8 = 7;
-pub const MOUSE_BUTTON_LAST = GLFW_MOUSE_BUTTON_8;
-pub const MOUSE_BUTTON_LEFT = GLFW_MOUSE_BUTTON_1;
-pub const MOUSE_BUTTON_RIGHT = GLFW_MOUSE_BUTTON_2;
-pub const MOUSE_BUTTON_MIDDLE = GLFW_MOUSE_BUTTON_3;
+pub const MOUSE_BUTTON_LAST = MOUSE_BUTTON_8;
+pub const MOUSE_BUTTON_LEFT = MOUSE_BUTTON_1;
+pub const MOUSE_BUTTON_RIGHT = MOUSE_BUTTON_2;
+pub const MOUSE_BUTTON_MIDDLE = MOUSE_BUTTON_3;
 // @}
 
 // @defgroup joysticks Joysticks
@@ -459,7 +423,7 @@ pub const JOYSTICK_13 = 12;
 pub const JOYSTICK_14 = 13;
 pub const JOYSTICK_15 = 14;
 pub const JOYSTICK_16 = 15;
-pub const JOYSTICK_LAST = GLFW_JOYSTICK_16;
+pub const JOYSTICK_LAST = JOYSTICK_16;
 // @}
 
 // @defgroup gamepad_buttons Gamepad buttons
@@ -484,12 +448,12 @@ pub const GAMEPAD_BUTTON_DPAD_UP = 11;
 pub const GAMEPAD_BUTTON_DPAD_RIGHT = 12;
 pub const GAMEPAD_BUTTON_DPAD_DOWN = 13;
 pub const GAMEPAD_BUTTON_DPAD_LEFT = 14;
-pub const GAMEPAD_BUTTON_LAST = GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
+pub const GAMEPAD_BUTTON_LAST = GAMEPAD_BUTTON_DPAD_LEFT;
 
-pub const GAMEPAD_BUTTON_CROSS = GLFW_GAMEPAD_BUTTON_A;
-pub const GAMEPAD_BUTTON_CIRCLE = GLFW_GAMEPAD_BUTTON_B;
-pub const GAMEPAD_BUTTON_SQUARE = GLFW_GAMEPAD_BUTTON_X;
-pub const GAMEPAD_BUTTON_TRIANGLE = GLFW_GAMEPAD_BUTTON_Y;
+pub const GAMEPAD_BUTTON_CROSS = GAMEPAD_BUTTON_A;
+pub const GAMEPAD_BUTTON_CIRCLE = GAMEPAD_BUTTON_B;
+pub const GAMEPAD_BUTTON_SQUARE = GAMEPAD_BUTTON_X;
+pub const GAMEPAD_BUTTON_TRIANGLE = GAMEPAD_BUTTON_Y;
 // @}
 
 // @defgroup gamepad_axes Gamepad axes
@@ -505,10 +469,9 @@ pub const GAMEPAD_AXIS_RIGHT_X = 2;
 pub const GAMEPAD_AXIS_RIGHT_Y = 3;
 pub const GAMEPAD_AXIS_LEFT_TRIGGER = 4;
 pub const GAMEPAD_AXIS_RIGHT_TRIGGER = 5;
-pub const GAMEPAD_AXIS_LAST = GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
-// @}
+pub const GAMEPAD_AXIS_LAST = GAMEPAD_AXIS_RIGHT_TRIGGER;
 
-//! @defgroup errors Error codes
+// @defgroup errors Error codes
 //  @brief Error codes.
 //
 //  See [error handling](@ref error_handling) for how these are used.
@@ -685,12 +648,8 @@ pub const FEATURE_UNIMPLEMENTED = 0x0001000D;
 ///  support for that platform was not compiled in.  Call @ref glfwPlatformSupported to
 ///  check whether a specific platform is supported by a library binary.
 pub const PLATFORM_UNAVAILABLE = 0x0001000E;
-// @}
 
-//! @addtogroup window
-//  @{
-
-///! @brief Input focus window hint and attribute
+/// @brief Input focus window hint and attribute
 ///
 ///  Input focus [window hint](@ref GLFW_FOCUSED_hint) or
 ///  [window attribute](@ref GLFW_FOCUSED_attrib).
@@ -869,7 +828,7 @@ pub const CONTEXT_DEBUG = 0x00022007;
 ///! @brief Legacy name for compatibility.
 ///
 ///  This is an alias for compatibility with earlier versions.
-pub const OPENGL_DEBUG_CONTEXT = GLFW_CONTEXT_DEBUG;
+pub const OPENGL_DEBUG_CONTEXT = CONTEXT_DEBUG;
 ///! @brief OpenGL profile hint and attribute.
 ///
 ///  OpenGL profile [hint](@ref GLFW_OPENGL_PROFILE_hint) and
@@ -919,7 +878,7 @@ pub const X11_INSTANCE_NAME = 0x00024002;
 pub const WIN32_SHOWDEFAULT = 0x00025002;
 ///! @brief Wayland specific
 ///  [window hint](@ref GLFW_WAYLAND_APP_ID_hint).
-///  
+///
 ///  Allows specification of the Wayland app_id.
 pub const WAYLAND_APP_ID = 0x00026001;
 // @}
@@ -1050,15 +1009,15 @@ pub const NOT_ALLOWED_CURSOR = 0x0003600A;
 ///! @brief Legacy name for compatibility.
 ///
 ///  This is an alias for compatibility with earlier versions.
-pub const HRESIZE_CURSOR = GLFW_RESIZE_EW_CURSOR;
+pub const HRESIZE_CURSOR = RESIZE_EW_CURSOR;
 ///! @brief Legacy name for compatibility.
 ///
 ///  This is an alias for compatibility with earlier versions.
-pub const VRESIZE_CURSOR = GLFW_RESIZE_NS_CURSOR;
+pub const VRESIZE_CURSOR = RESIZE_NS_CURSOR;
 ///! @brief Legacy name for compatibility.
 ///
 ///  This is an alias for compatibility with earlier versions.
-pub const HAND_CURSOR = GLFW_POINTING_HAND_CURSOR;
+pub const HAND_CURSOR = POINTING_HAND_CURSOR;
 // @}
 
 pub const CONNECTED = 0x00040001;
@@ -1111,9 +1070,7 @@ pub const PLATFORM_WAYLAND = 0x00060003;
 pub const PLATFORM_X11 = 0x00060004;
 pub const PLATFORM_NULL = 0x00060005;
 /// @}
-
 pub const DONT_CARE = -1;
-
 
 //*************************************************************************
 //* GLFW API types
@@ -1228,7 +1185,7 @@ pub const Cursor = opaque {};
 /// @since Added in version 3.4.
 ///
 /// @ingroup init
-pub const AllocateFun = *const fn(size: usize, user: *anyopaque) callconv(.c) *anyopaque;
+pub const AllocateFun = *const fn (size: usize, user: *anyopaque) callconv(.c) *anyopaque;
 
 ///! @brief The function pointer type for memory reallocation callbacks.
 ///
@@ -1283,7 +1240,7 @@ pub const AllocateFun = *const fn(size: usize, user: *anyopaque) callconv(.c) *a
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub const ReallocateFun = *const fn(block: *anyopaque, size: usize, user: *anyopaque) callconv(.c) *anyopaque;
+pub const ReallocateFun = *const fn (block: *anyopaque, size: usize, user: *anyopaque) callconv(.c) *anyopaque;
 
 ///! @brief The function pointer type for memory deallocation callbacks.
 ///
@@ -1324,7 +1281,7 @@ pub const ReallocateFun = *const fn(block: *anyopaque, size: usize, user: *anyop
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub cosnt DeallocateFun = *const fn(block: *anyopaque, user: *anyopaque) callconv(.c) void;
+pub const DeallocateFun = *const fn (block: *anyopaque, user: *anyopaque) callconv(.c) void;
 
 ///! @brief The function pointer type for error callbacks.
 ///
@@ -1347,7 +1304,7 @@ pub cosnt DeallocateFun = *const fn(block: *anyopaque, user: *anyopaque) callcon
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup init
-pub const ErrorFun = *const fn(error_code: c_int, description: [*:0]const u8) callconv(.c) void;
+pub const ErrorFun = *const fn (error_code: c_int, description: [*:0]const u8) callconv(.c) void;
 
 ///! @brief The function pointer type for window position callbacks.
 ///
@@ -1369,7 +1326,7 @@ pub const ErrorFun = *const fn(error_code: c_int, description: [*:0]const u8) ca
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const WindowPosFun = *const fn(window: *Window, xpos: c_int, ypos: c_int) callconv(.c) void;
+pub const WindowPosFun = *const fn (window: *Window, xpos: c_int, ypos: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for window size callbacks.
 ///
@@ -1390,7 +1347,7 @@ pub const WindowPosFun = *const fn(window: *Window, xpos: c_int, ypos: c_int) ca
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const WindowSizeFun = *const fn(window: *Window, width: c_int, height: c_int) callconv(.c) void;
+pub const WindowSizeFun = *const fn (window: *Window, width: c_int, height: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for window close callbacks.
 ///
@@ -1409,7 +1366,7 @@ pub const WindowSizeFun = *const fn(window: *Window, width: c_int, height: c_int
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const WindowCloseFun = *const fn(window: *Window) callconv(.c) void;
+pub const WindowCloseFun = *const fn (window: *Window) callconv(.c) void;
 
 ///! @brief The function pointer type for window content refresh callbacks.
 ///
@@ -1428,7 +1385,7 @@ pub const WindowCloseFun = *const fn(window: *Window) callconv(.c) void;
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const WindowRefreshFun = *const fn(window: *Window) callconv(.c) callconv(.c) void;
+pub const WindowRefreshFun = *const fn (window: *Window) callconv(.c) void;
 
 ///! @brief The function pointer type for window focus callbacks.
 ///
@@ -1448,7 +1405,7 @@ pub const WindowRefreshFun = *const fn(window: *Window) callconv(.c) callconv(.c
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const WindowFocusFun = *const fn(window: *Window, focused: c_int) callconv(.c) void;
+pub const WindowFocusFun = *const fn (window: *Window, focused: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for window iconify callbacks.
 ///
@@ -1468,7 +1425,7 @@ pub const WindowFocusFun = *const fn(window: *Window, focused: c_int) callconv(.
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const WindowIconifyFun = *const fn(window: *Window, iconified: c_int) callconv(.c) void;
+pub const WindowIconifyFun = *const fn (window: *Window, iconified: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for window maximize callbacks.
 ///
@@ -1488,7 +1445,7 @@ pub const WindowIconifyFun = *const fn(window: *Window, iconified: c_int) callco
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup window
-pub const WindowmaximizeFun = *const fn(window: *Window, maximized: c_int) callconv(.c) void;
+pub const WindowmaximizeFun = *const fn (window: *Window, maximized: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for framebuffer size callbacks.
 ///
@@ -1508,7 +1465,7 @@ pub const WindowmaximizeFun = *const fn(window: *Window, maximized: c_int) callc
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const FramebufferSizeFun = *const fn(window: *Window, width: c_int, height: c_int) callconv(.c) void;
+pub const FramebufferSizeFun = *const fn (window: *Window, width: c_int, height: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for window content scale callbacks.
 ///
@@ -1528,7 +1485,7 @@ pub const FramebufferSizeFun = *const fn(window: *Window, width: c_int, height: 
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup window
-pub const WindowContentScaleFun = *const fn(window: *Window, xscale: f32, yscale: f32) callconv(.c) void;
+pub const WindowContentScaleFun = *const fn (window: *Window, xscale: f32, yscale: f32) callconv(.c) void;
 
 ///! @brief The function pointer type for mouse button callbacks.
 ///
@@ -1553,7 +1510,7 @@ pub const WindowContentScaleFun = *const fn(window: *Window, xscale: f32, yscale
 ///  @glfw3 Added window handle and modifier mask parameters.
 ///
 ///  @ingroup input
-pub const MouseButtonFun = *const fn(window: *Window, button: c_int, action: c_int, mods: c_int) callconv(.c) void;
+pub const MouseButtonFun = *const fn (window: *Window, button: c_int, action: c_int, mods: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for cursor position callbacks.
 ///
@@ -1575,7 +1532,7 @@ pub const MouseButtonFun = *const fn(window: *Window, button: c_int, action: c_i
 ///  @since Added in version 3.0.  Replaces `GLFWmouseposfun`.
 ///
 ///  @ingroup input
-pub const CursorPosFun = *const fn(window: *Window, xpos: f64, ypos: f64) callconv(.c) void;
+pub const CursorPosFun = *const fn (window: *Window, xpos: f64, ypos: f64) callconv(.c) void;
 
 ///! @brief The function pointer type for cursor enter/leave callbacks.
 ///
@@ -1595,7 +1552,7 @@ pub const CursorPosFun = *const fn(window: *Window, xpos: f64, ypos: f64) callco
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup input
-pub const CursorEnterFun = *const fn(window: *Window, entered: c_int) callconv(.c) void;
+pub const CursorEnterFun = *const fn (window: *Window, entered: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for scroll callbacks.
 ///
@@ -1640,7 +1597,7 @@ pub const ScrollFun = *const fn (window: *Window, xoffset: f64, yoffset: f64) ca
 ///  @glfw3 Added window handle, scancode and modifier mask parameters.
 ///
 ///  @ingroup input
-pub const KeyFun = *const fn(window: *Window, key: c_int, scancode: c_int, action: c_int, mods: c_int) callconv(.c) void;
+pub const KeyFun = *const fn (window: *Window, key: c_int, scancode: c_int, action: c_int, mods: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for Unicode character callbacks.
 ///
@@ -1660,7 +1617,7 @@ pub const KeyFun = *const fn(window: *Window, key: c_int, scancode: c_int, actio
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup input
-pub const CharFun = *const fn(window: *Window, codepoint: c_uint) callconv(.c) void;
+pub const CharFun = *const fn (window: *Window, codepoint: c_uint) callconv(.c) void;
 
 ///! @brief The function pointer type for Unicode character with modifiers
 ///  callbacks.
@@ -1686,7 +1643,7 @@ pub const CharFun = *const fn(window: *Window, codepoint: c_uint) callconv(.c) v
 ///  @since Added in version 3.1.
 ///
 ///  @ingroup input
-pub const CharModsFun = *const fn(window: *Window, codepoint: c_uint, mods: c_int) callconv(.c) void;
+pub const CharModsFun = *const fn (window: *Window, codepoint: c_uint, mods: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for path drop callbacks.
 ///
@@ -1709,7 +1666,7 @@ pub const CharModsFun = *const fn(window: *Window, codepoint: c_uint, mods: c_in
 ///  @since Added in version 3.1.
 ///
 ///  @ingroup input
-pub const DropFun = *const fn(window: *WIndow, path_count: c_int, paths: [*][*:0]const u8) callconv(.c) void;
+pub const DropFun = *const fn (window: *Window, path_count: c_int, paths: [*][*:0]const u8) callconv(.c) void;
 
 ///! @brief The function pointer type for monitor configuration callbacks.
 ///
@@ -1729,7 +1686,7 @@ pub const DropFun = *const fn(window: *WIndow, path_count: c_int, paths: [*][*:0
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const MonitorFun = *const fn(monitor: *Monitor, event: c_int) callconv(.c) void;
+pub const MonitorFun = *const fn (monitor: *Monitor, event: c_int) callconv(.c) void;
 
 ///! @brief The function pointer type for joystick configuration callbacks.
 ///
@@ -1749,7 +1706,7 @@ pub const MonitorFun = *const fn(monitor: *Monitor, event: c_int) callconv(.c) v
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup input
-pub const JoystickFun = *const fn(jid: c_int, event: c_int) callconv(.c) void;
+pub const JoystickFun = *const fn (jid: c_int, event: c_int) callconv(.c) void;
 
 ///! @brief Video mode type.
 ///
@@ -1866,7 +1823,6 @@ pub const Allocator = extern struct {
     user: *anyopaque,
 };
 
-
 //*************************************************************************
 //* GLFW API functions
 //*************************************************************************
@@ -1928,7 +1884,7 @@ pub const Allocator = extern struct {
 ///  @since Added in version 1.0.
 ///
 ///  @ingroup init
-pub const init = f("glfwInit", fn() callconv(.c) c_int);
+pub const init = f("glfwInit", fn () callconv(.c) c_int);
 
 ///! @brief Terminates the GLFW library.
 ///
@@ -1961,7 +1917,7 @@ pub const init = f("glfwInit", fn() callconv(.c) c_int);
 ///  @since Added in version 1.0.
 ///
 ///  @ingroup init
-pub const terminate = f("glfwTerminate", fn() callonv(.c) void);
+pub const terminate = f("glfwTerminate", fn () callconv(.c) void);
 
 ///! @brief Sets the specified init hint to the desired value.
 ///
@@ -1992,7 +1948,7 @@ pub const terminate = f("glfwTerminate", fn() callonv(.c) void);
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup init
-pub const initHint = f("glfwInitHint", fn(hint: c_int, value: c_int) callconv(.c) void);
+pub const initHint = f("glfwInitHint", fn (hint: c_int, value: c_int) callconv(.c) void);
 
 ///! @brief Sets the init allocator to the desired value.
 ///
@@ -2022,7 +1978,7 @@ pub const initHint = f("glfwInitHint", fn(hint: c_int, value: c_int) callconv(.c
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub const initAllocator = f("glfwInitAllocator", fn(allocator: *Allocator) callconv(.c) void);
+pub const initAllocator = f("glfwInitAllocator", fn (allocator: *Allocator) callconv(.c) void);
 
 // #if defined(VK_VERSION_1_0)
 
@@ -2067,7 +2023,7 @@ pub const initAllocator = f("glfwInitAllocator", fn(allocator: *Allocator) callc
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub const initVulkanLoader = f("glfwInitVulkanLoader", fn(loader: PFN_vkGetInstanceProcAddr) callconv(.c) void);
+pub const initVulkanLoader = f("glfwInitVulkanLoader", fn (loader: PFN_vkGetInstanceProcAddr) callconv(.c) void);
 
 // #endif /*VK_VERSION_1_0*/
 
@@ -2095,7 +2051,7 @@ pub const initVulkanLoader = f("glfwInitVulkanLoader", fn(loader: PFN_vkGetInsta
 ///  @since Added in version 1.0.
 ///
 ///  @ingroup init
-pub const getVersion = f("glfwGetVersion", fn(major: *c_int, minor: *c_int, rev: *c_int) callconv(.c) void);
+pub const getVersion = f("glfwGetVersion", fn (major: *c_int, minor: *c_int, rev: *c_int) callconv(.c) void);
 
 ///! @brief Returns a string describing the compile-time configuration.
 ///
@@ -2128,7 +2084,7 @@ pub const getVersion = f("glfwGetVersion", fn(major: *c_int, minor: *c_int, rev:
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup init
-pub const getVersionString = f("glfwGetVersionString", fn() callconv(.c) [*:0]const u8);
+pub const getVersionString = f("glfwGetVersionString", fn () callconv(.c) [*:0]const u8);
 
 ///! @brief Returns and clears the last error for the calling thread.
 ///
@@ -2158,7 +2114,7 @@ pub const getVersionString = f("glfwGetVersionString", fn() callconv(.c) [*:0]co
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup init
-pub const getError = f("glfwGetError", fn(description: *[*:0]const u8) callconv(.c) c_int);
+pub const getError = f("glfwGetError", fn (description: *[*:0]const u8) callconv(.c) c_int);
 
 ///! @brief Sets the error callback.
 ///
@@ -2203,7 +2159,7 @@ pub const getError = f("glfwGetError", fn(description: *[*:0]const u8) callconv(
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup init
-pub const setErrorCallback = f("glfwSetErrorCallback", fn(callback: ErrorFun) callconv(.c) ErrorFun);
+pub const setErrorCallback = f("glfwSetErrorCallback", fn (callback: ErrorFun) callconv(.c) ErrorFun);
 
 ///! @brief Returns the currently selected platform.
 ///
@@ -2223,7 +2179,7 @@ pub const setErrorCallback = f("glfwSetErrorCallback", fn(callback: ErrorFun) ca
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub const getPlatform = f("glfwGetPlatform", fn() callconv(.c) c_int);
+pub const getPlatform = f("glfwGetPlatform", fn () callconv(.c) c_int);
 
 ///! @brief Returns whether the library includes support for the specified platform.
 ///
@@ -2246,7 +2202,7 @@ pub const getPlatform = f("glfwGetPlatform", fn() callconv(.c) c_int);
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup init
-pub const platformSupported = f("glfwPlatformSupported", fn(platform: c_int) callconv(.c) c_int);
+pub const platformSupported = f("glfwPlatformSupported", fn (platform: c_int) callconv(.c) c_int);
 
 ///! @brief Returns the currently connected monitors.
 ///
@@ -2274,7 +2230,7 @@ pub const platformSupported = f("glfwPlatformSupported", fn(platform: c_int) cal
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const getMonitors = f("glfwGetMonitors", fn(count: *c_int) callconv(.c) [*]*Monitor);
+pub const getMonitors = f("glfwGetMonitors", fn (count: *c_int) callconv(.c) [*]*Monitor);
 
 ///! @brief Returns the primary monitor.
 ///
@@ -2297,7 +2253,7 @@ pub const getMonitors = f("glfwGetMonitors", fn(count: *c_int) callconv(.c) [*]*
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const getPrimaryMonitor = f("glfwGetPrimaryMonitor", fn() callconv(.c) *Monitor);
+pub const getPrimaryMonitor = f("glfwGetPrimaryMonitor", fn () callconv(.c) *Monitor);
 
 ///! @brief Returns the position of the monitor's viewport on the virtual screen.
 ///
@@ -2321,7 +2277,7 @@ pub const getPrimaryMonitor = f("glfwGetPrimaryMonitor", fn() callconv(.c) *Moni
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const getMonitorPos = f("glfwGetMonitorPos", fn(monitor: *Monitor, xpos: *c_int, ypos: *c_int) callconv(.c) void);
+pub const getMonitorPos = f("glfwGetMonitorPos", fn (monitor: *Monitor, xpos: *c_int, ypos: *c_int) callconv(.c) void);
 
 ///! @brief Retrieves the work area of the monitor.
 ///
@@ -2351,7 +2307,7 @@ pub const getMonitorPos = f("glfwGetMonitorPos", fn(monitor: *Monitor, xpos: *c_
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup monitor
-pub const getMonitorWorkarea = f("glfwGetMonitorWorkarea", fn(monitor: *Monitor, xpos: *c_int, ypos: *c_int, width: *c_int, height: *c_int) callconv(.c) void);
+pub const getMonitorWorkarea = f("glfwGetMonitorWorkarea", fn (monitor: *Monitor, xpos: *c_int, ypos: *c_int, width: *c_int, height: *c_int) callconv(.c) void);
 
 ///! @brief Returns the physical size of the monitor.
 ///
@@ -2385,7 +2341,7 @@ pub const getMonitorWorkarea = f("glfwGetMonitorWorkarea", fn(monitor: *Monitor,
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const getMonitorPhysicalSize = f("glfwGetMonitorPhysicalSize", fn(monitor: *Monitor, widthMM: *c_int, heightMM: *c_int) callconv(.c) void);
+pub const getMonitorPhysicalSize = f("glfwGetMonitorPhysicalSize", fn (monitor: *Monitor, widthMM: *c_int, heightMM: *c_int) callconv(.c) void);
 
 ///! @brief Retrieves the content scale for the specified monitor.
 ///
@@ -2419,7 +2375,7 @@ pub const getMonitorPhysicalSize = f("glfwGetMonitorPhysicalSize", fn(monitor: *
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup monitor
-pub const getMonitorContentScale = f("glfwGetMonitorContentScale", fn(monitor: *Monitor, xscale: *f32, yscale: *f32) callconv(.c) void);
+pub const getMonitorContentScale = f("glfwGetMonitorContentScale", fn (monitor: *Monitor, xscale: *f32, yscale: *f32) callconv(.c) void);
 
 ///! @brief Returns the name of the specified monitor.
 ///
@@ -2444,7 +2400,7 @@ pub const getMonitorContentScale = f("glfwGetMonitorContentScale", fn(monitor: *
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const getMonitorName = f("glfwGetMonitorName", fn(monitor: *Monitor) callconv(.c) [*:0]const u8);
+pub const getMonitorName = f("glfwGetMonitorName", fn (monitor: *Monitor) callconv(.c) [*:0]const u8);
 
 ///! @brief Sets the user pointer of the specified monitor.
 ///
@@ -2469,7 +2425,7 @@ pub const getMonitorName = f("glfwGetMonitorName", fn(monitor: *Monitor) callcon
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup monitor
-pub const setMonitorUserPointer = f("glfwSetMonitorUserPointer", fn(monitor: *Monitor, pointer: *anyopaque) callconv(.c) void);
+pub const setMonitorUserPointer = f("glfwSetMonitorUserPointer", fn (monitor: *Monitor, pointer: *anyopaque) callconv(.c) void);
 
 ///! @brief Returns the user pointer of the specified monitor.
 ///
@@ -2492,7 +2448,7 @@ pub const setMonitorUserPointer = f("glfwSetMonitorUserPointer", fn(monitor: *Mo
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup monitor
-pub const getMonitorUserPointer = f("glfwGetMonitorUserPointer", fn(monitor: *Monitor) callconv(.c) *anyopaque);
+pub const getMonitorUserPointer = f("glfwGetMonitorUserPointer", fn (monitor: *Monitor) callconv(.c) *anyopaque);
 
 ///! @brief Sets the monitor configuration callback.
 ///
@@ -2521,7 +2477,7 @@ pub const getMonitorUserPointer = f("glfwGetMonitorUserPointer", fn(monitor: *Mo
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const setMonitorCallback = f("glfwSetMonitorCallback", fn(callback: MonitorFun) callconv(.c) MonitorFun);
+pub const setMonitorCallback = f("glfwSetMonitorCallback", fn (callback: MonitorFun) callconv(.c) MonitorFun);
 
 ///! @brief Returns the available video modes for the specified monitor.
 ///
@@ -2554,7 +2510,7 @@ pub const setMonitorCallback = f("glfwSetMonitorCallback", fn(callback: MonitorF
 ///  @glfw3 Changed to return an array of modes for a specific monitor.
 ///
 ///  @ingroup monitor
-pub const getVideoModes = f("glfwGetVideoModes", fn(monitor: *Monitor, count: *c_int) callconv(.c) [*]const VidMode);
+pub const getVideoModes = f("glfwGetVideoModes", fn (monitor: *Monitor, count: *c_int) callconv(.c) [*]const VidMode);
 
 ///! @brief Returns the current mode of the specified monitor.
 ///
@@ -2581,7 +2537,7 @@ pub const getVideoModes = f("glfwGetVideoModes", fn(monitor: *Monitor, count: *c
 ///  @since Added in version 3.0.  Replaces `glfwGetDesktopMode`.
 ///
 ///  @ingroup monitor
-pub const getVideoMode = f("glfwGetVideoMode", fn(monitor: *Monitor) callconv(.c) *const VidMode);
+pub const getVideoMode = f("glfwGetVideoMode", fn (monitor: *Monitor) callconv(.c) *const VidMode);
 
 ///! @brief Generates a gamma ramp and sets it for the specified monitor.
 ///
@@ -2613,7 +2569,7 @@ pub const getVideoMode = f("glfwGetVideoMode", fn(monitor: *Monitor) callconv(.c
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const setGamma = f("glfwSetGamma", fn(monitor: *Monitor, gamma: f32) callconv(.c) void);
+pub const setGamma = f("glfwSetGamma", fn (monitor: *Monitor, gamma: f32) callconv(.c) void);
 
 ///! @brief Returns the current gamma ramp for the specified monitor.
 ///
@@ -2642,7 +2598,7 @@ pub const setGamma = f("glfwSetGamma", fn(monitor: *Monitor, gamma: f32) callcon
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const getGammaRamp = f("glfwGetGammaRamp", fn(monitor: *Monitor) callconv(.c) *const GammaRamp);
+pub const getGammaRamp = f("glfwGetGammaRamp", fn (monitor: *Monitor) callconv(.c) *const GammaRamp);
 
 ///! @brief Sets the current gamma ramp for the specified monitor.
 ///
@@ -2682,7 +2638,7 @@ pub const getGammaRamp = f("glfwGetGammaRamp", fn(monitor: *Monitor) callconv(.c
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup monitor
-pub const setGammaRamp = f("glfwSetGammaRamp", fn(monitor: *Monitor, ramp: *const GammaRamp) callconv(.c) void);
+pub const setGammaRamp = f("glfwSetGammaRamp", fn (monitor: *Monitor, ramp: *const GammaRamp) callconv(.c) void);
 
 ///! @brief Resets all window hints to their default values.
 ///
@@ -2700,7 +2656,7 @@ pub const setGammaRamp = f("glfwSetGammaRamp", fn(monitor: *Monitor, ramp: *cons
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const defaultWindowHints = f("glfwDefaultWindowHints", fn() callconv(.c) void);
+pub const defaultWindowHints = f("glfwDefaultWindowHints", fn () callconv(.c) void);
 
 ///! @brief Sets the specified window hint to the desired value.
 ///
@@ -2734,7 +2690,7 @@ pub const defaultWindowHints = f("glfwDefaultWindowHints", fn() callconv(.c) voi
 ///  @since Added in version 3.0.  Replaces `glfwOpenWindowHint`.
 ///
 ///  @ingroup window
-pub const windowHint = f("glfwWindowHint", fn(hint: c_int, value: c_int) callconv(.c) void);
+pub const windowHint = f("glfwWindowHint", fn (hint: c_int, value: c_int) callconv(.c) void);
 
 ///! @brief Sets the specified window hint to the desired value.
 ///
@@ -2771,7 +2727,7 @@ pub const windowHint = f("glfwWindowHint", fn(hint: c_int, value: c_int) callcon
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup window
-pub const windowHintString = f("glfwWindowHintString", fn(hint: c_int, value: [*:0]const u8) callconv(.c) void);
+pub const windowHintString = f("glfwWindowHintString", fn (hint: c_int, value: [*:0]const u8) callconv(.c) void);
 
 ///! @brief Creates a window and its associated context.
 ///
@@ -2914,7 +2870,7 @@ pub const windowHintString = f("glfwWindowHintString", fn(hint: c_int, value: [*
 ///  @since Added in version 3.0.  Replaces `glfwOpenWindow`.
 ///
 ///  @ingroup window
-pub const createWindow = f("glfwCreateWindow", fn(width: c_int, height: c_int, title: [*:0]const u8, monitor: ?*Monitor, share: ?*Window) callconv(.c) *Window);
+pub const createWindow = f("glfwCreateWindow", fn (width: c_int, height: c_int, title: [*:0]const u8, monitor: ?*Monitor, share: ?*Window) callconv(.c) *Window);
 
 ///! @brief Destroys the specified window and its context.
 ///
@@ -2942,7 +2898,7 @@ pub const createWindow = f("glfwCreateWindow", fn(width: c_int, height: c_int, t
 ///  @since Added in version 3.0.  Replaces `glfwCloseWindow`.
 ///
 ///  @ingroup window
-pub const destroyWindow = f("glfwDestroyWindow", fn(window: *Window) callconv(.c) void);
+pub const destroyWindow = f("glfwDestroyWindow", fn (window: *Window) callconv(.c) void);
 
 ///! @brief Checks the close flag of the specified window.
 ///
@@ -2961,7 +2917,7 @@ pub const destroyWindow = f("glfwDestroyWindow", fn(window: *Window) callconv(.c
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const windowShouldClose = f("glfwWindowShouldClose", fn(window: *Window) callconv(.c) void);
+pub const windowShouldClose = f("glfwWindowShouldClose", fn (window: *Window) callconv(.c) void);
 
 ///! @brief Sets the close flag of the specified window.
 ///
@@ -2982,7 +2938,7 @@ pub const windowShouldClose = f("glfwWindowShouldClose", fn(window: *Window) cal
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const setWindowShouldClose = f("glfwSetWindowShouldClose", fn(window: *Window, value: c_int) callconv(.c) void);
+pub const setWindowShouldClose = f("glfwSetWindowShouldClose", fn (window: *Window, value: c_int) callconv(.c) void);
 
 ///! @brief Returns the title of the specified window.
 ///
@@ -3013,7 +2969,7 @@ pub const setWindowShouldClose = f("glfwSetWindowShouldClose", fn(window: *Windo
 ///  @since Added in version 3.4.
 ///
 ///  @ingroup window
-pub const getWindowTitle = f("glfwGetWindowTitle", fn(window: *Window) callconv(.c) [*:0]const u8);
+pub const getWindowTitle = f("glfwGetWindowTitle", fn (window: *Window) callconv(.c) [*:0]const u8);
 
 ///! @brief Sets the title of the specified window.
 ///
@@ -3038,7 +2994,7 @@ pub const getWindowTitle = f("glfwGetWindowTitle", fn(window: *Window) callconv(
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const setWindowTitle = f("glfwSetWindowTitle", fn(window: *Window, title: [*:0]const u8) callconv(.c) void);
+pub const setWindowTitle = f("glfwSetWindowTitle", fn (window: *Window, title: [*:0]const u8) callconv(.c) void);
 
 ///! @brief Sets the icon for the specified window.
 ///
@@ -3086,7 +3042,7 @@ pub const setWindowTitle = f("glfwSetWindowTitle", fn(window: *Window, title: [*
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup window
-pub const setWindowIcon = f("glfwSetWindowIcon", fn(window: *Window, count: c_int, images: [*]const Image) callconv(.c) void);
+pub const setWindowIcon = f("glfwSetWindowIcon", fn (window: *Window, count: c_int, images: [*]const Image) callconv(.c) void);
 
 ///! @brief Retrieves the position of the content area of the specified window.
 ///
@@ -3117,7 +3073,7 @@ pub const setWindowIcon = f("glfwSetWindowIcon", fn(window: *Window, count: c_in
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub conset getWindowPos = f("glfwGetWindowPos", fn(window: *Window, xpos: *c_int, ypos: *c_int) callconv(.c) void);
+pub const getWindowPos = f("glfwGetWindowPos", fn (window: *Window, xpos: *c_int, ypos: *c_int) callconv(.c) void);
 
 ///! @brief Sets the position of the content area of the specified window.
 ///
@@ -3151,7 +3107,7 @@ pub conset getWindowPos = f("glfwGetWindowPos", fn(window: *Window, xpos: *c_int
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const setWindowPos = f("glfwSetWindowPos", fn(window: *Window, xpos: c_int, ypos: c_int) callconv(.c) void);
+pub const setWindowPos = f("glfwSetWindowPos", fn (window: *Window, xpos: c_int, ypos: c_int) callconv(.c) void);
 
 ///! @brief Retrieves the size of the content area of the specified window.
 ///
@@ -3180,7 +3136,7 @@ pub const setWindowPos = f("glfwSetWindowPos", fn(window: *Window, xpos: c_int, 
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const getWindowSize = f("glfwGetWindowSize", fn(window: *Window, width: *c_int, height: *c_int) callconv(.c) void);
+pub const getWindowSize = f("glfwGetWindowSize", fn (window: *Window, width: *c_int, height: *c_int) callconv(.c) void);
 
 ///! @brief Sets the size limits of the specified window.
 ///
@@ -3222,7 +3178,7 @@ pub const getWindowSize = f("glfwGetWindowSize", fn(window: *Window, width: *c_i
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup window
-pub const setWindowSizeLimits = f("glfwSetWindowSizeLimits", fn(window: *Window, minwidth: c_int, minheight: c_int, maxwidth: c_int, maxheight: c_int) callconv(.c) void);
+pub const setWindowSizeLimits = f("glfwSetWindowSizeLimits", fn (window: *Window, minwidth: c_int, minheight: c_int, maxwidth: c_int, maxheight: c_int) callconv(.c) void);
 
 ///! @brief Sets the aspect ratio of the specified window.
 ///
@@ -3264,7 +3220,7 @@ pub const setWindowSizeLimits = f("glfwSetWindowSizeLimits", fn(window: *Window,
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup window
-pub const setWindowAspectRatio = f("glfwSetWindowAspectRatio", fn(window: *Window, numer: c_int, denom: c_int) callconv(.c) void);
+pub const setWindowAspectRatio = f("glfwSetWindowAspectRatio", fn (window: *Window, numer: c_int, denom: c_int) callconv(.c) void);
 
 ///! @brief Sets the size of the content area of the specified window.
 ///
@@ -3301,7 +3257,7 @@ pub const setWindowAspectRatio = f("glfwSetWindowAspectRatio", fn(window: *Windo
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup window
-pub const setWindowSize = f("glfwSetWindowSize", fn(window: *Window, width: c_int, height: c_int) callconv(.c) void);
+pub const setWindowSize = f("glfwSetWindowSize", fn (window: *Window, width: c_int, height: c_int) callconv(.c) void);
 
 ///! @brief Retrieves the size of the framebuffer of the specified window.
 ///
@@ -3329,5 +3285,4 @@ pub const setWindowSize = f("glfwSetWindowSize", fn(window: *Window, width: c_in
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup window
-pub const getFrameBufferSize = f("glfwGetFrameBufferSize", fn(window: *Window, width: *c_int, height: *c_int) callconv(.c) void);
-
+pub const getFrameBufferSize = f("glfwGetFrameBufferSize", fn (window: *Window, width: *c_int, height: *c_int) callconv(.c) void);
