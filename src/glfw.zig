@@ -16,6 +16,68 @@ const PFN_vkVoidFunction = *const fn () callconv(.c) void;
 const PFN_vkGetInstanceProcAddr = *const fn (VkInstance, [*:0]const u8) callconv(.c) PFN_vkVoidFunction;
 const PFN_vkEnumerateInstanceExtensionProperties = *const fn ([*:0]const u8, *u32, [*]VkExtensionProperties) callconv(.c) VkResult;
 
+pub const InitHint = enum(c_int) {
+    /// @brief Platform selection init hint.
+    ///
+    ///  Platform selection [init hint](@ref GLFW_PLATFORM).
+    platform = PLATFORM,
+    /// @brief Joystick hat buttons init hint.
+    ///
+    ///  Joystick hat buttons [init hint](@ref GLFW_JOYSTICK_HAT_BUTTONS).
+    joystick_hat_buttons = JOYSTICK_HAT_BUTTONS,
+    /// @brief ANGLE rendering backend init hint.
+    ///
+    ///  ANGLE rendering backend [init hint](@ref GLFW_ANGLE_PLATFORM_TYPE_hint).
+    angle_platform_type = ANGLE_PLATFORM_TYPE,
+    /// @brief macOS specific init hint.
+    ///
+    ///  macOS specific [init hint](@ref GLFW_COCOA_CHDIR_RESOURCES_hint).
+    cocoa_chdir_resources = COCOA_CHDIR_RESOURCES,
+    /// @brief macOS specific init hint.
+    ///
+    ///  macOS specific [init hint](@ref GLFW_COCOA_MENUBAR_hint).
+    cocoa_menubar = COCOA_MENUBAR,
+    /// @brief Wayland specific init hint.
+    ///
+    ///  Wayland specific [init hint](@ref GLFW_WAYLAND_LIBDECOR_hint).
+    wayland_libdecor = WAYLAND_LIBDECOR,
+    /// @brief X11 specific init hint.
+    ///
+    ///  X11 specific [init hint](@ref GLFW_X11_XCB_VULKAN_SURFACE_hint).
+    x11_cxb_vulkan_surface = X11_XCB_VULKAN_SURFACE,
+};
+
+pub const InitHintValue = enum(c_int) {
+    platform_any = ANY_PLATFORM,
+    platform_win32 = PLATFORM_WIN32,
+    platform_cocoa = PLATFORM_COCOA,
+    platform_wayland = PLATFORM_WAYLAND,
+    platform_x11 = PLATFORM_X11,
+    platform_null = PLATFORM_NULL,
+    true = TRUE,
+    false = FALSE,
+    angle_platform_type_none = ANGLE_PLATFORM_TYPE_NONE,
+    angle_platform_type_opengl = ANGLE_PLATFORM_TYPE_OPENGL,
+    angle_platform_type_opengles = ANGLE_PLATFORM_TYPE_OPENGLES,
+    angle_platform_type_d3d9 = ANGLE_PLATFORM_TYPE_D3D9,
+    angle_platform_type_d3d11 = ANGLE_PLATFORM_TYPE_D3D11,
+    angle_platform_type_vulkan = ANGLE_PLATFORM_TYPE_VULKAN,
+    angle_platform_type_metal = ANGLE_PLATFORM_TYPE_METAL,
+};
+
+pub const Platform = enum(c_int) {
+    any = ANY_PLATFORM,
+    win32 = PLATFORM_WIN32,
+    cocoa = PLATFORM_COCOA,
+    wayland = PLATFORM_WAYLAND,
+    x11 = PLATFORM_X11,
+    null = PLATFORM_NULL,
+
+    pub fn toInitHintValue(value: Platform) InitHintValue {
+        return @enumFromInt(@intFromEnum(value));
+    }
+};
+
 // @name GLFW version macros
 
 /// @brief The major version number of the GLFW header.
@@ -1831,7 +1893,7 @@ pub const terminate = f("glfwTerminate", fn () callconv(.c) void);
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup init
-pub const initHint = f("glfwInitHint", fn (hint: c_int, value: c_int) callconv(.c) void);
+pub const initHint = f("glfwInitHint", fn (hint: InitHint, value: InitHintValue) callconv(.c) void);
 
 /// @brief Sets the init allocator to the desired value.
 ///
