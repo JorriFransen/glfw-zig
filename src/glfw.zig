@@ -1,3 +1,6 @@
+const enums = @import("enums.zig");
+const flags = @import("flags.zig");
+
 inline fn f(comptime name: []const u8, comptime T: type) *const T {
     return @extern(*const T, .{ .name = name });
 }
@@ -16,52 +19,21 @@ const PFN_vkVoidFunction = *const fn () callconv(.c) void;
 const PFN_vkGetInstanceProcAddr = *const fn (VkInstance, [*:0]const u8) callconv(.c) PFN_vkVoidFunction;
 const PFN_vkEnumerateInstanceExtensionProperties = *const fn ([*:0]const u8, *u32, [*]VkExtensionProperties) callconv(.c) VkResult;
 
-pub const InitHint = enum(c_int) {
-    platform = PLATFORM,
-    joystick_hat_buttons = JOYSTICK_HAT_BUTTONS,
-    angle_platform_type = ANGLE_PLATFORM_TYPE,
-    cocoa_chdir_resources = COCOA_CHDIR_RESOURCES,
-    cocoa_menubar = COCOA_MENUBAR,
-    wayland_libdecor = WAYLAND_LIBDECOR,
-    x11_cxb_vulkan_surface = X11_XCB_VULKAN_SURFACE,
-};
-
-pub const InitHintValue = enum(c_int) {
-    platform_any = ANY_PLATFORM,
-    platform_win32 = PLATFORM_WIN32,
-    platform_cocoa = PLATFORM_COCOA,
-    platform_wayland = PLATFORM_WAYLAND,
-    platform_x11 = PLATFORM_X11,
-    platform_null = PLATFORM_NULL,
-    true = TRUE,
-    false = FALSE,
-    angle_platform_type_none = ANGLE_PLATFORM_TYPE_NONE,
-    angle_platform_type_opengl = ANGLE_PLATFORM_TYPE_OPENGL,
-    angle_platform_type_opengles = ANGLE_PLATFORM_TYPE_OPENGLES,
-    angle_platform_type_d3d9 = ANGLE_PLATFORM_TYPE_D3D9,
-    angle_platform_type_d3d11 = ANGLE_PLATFORM_TYPE_D3D11,
-    angle_platform_type_vulkan = ANGLE_PLATFORM_TYPE_VULKAN,
-    angle_platform_type_metal = ANGLE_PLATFORM_TYPE_METAL,
-};
-
-pub const Platform = enum(c_int) {
-    any = ANY_PLATFORM,
-    win32 = PLATFORM_WIN32,
-    cocoa = PLATFORM_COCOA,
-    wayland = PLATFORM_WAYLAND,
-    x11 = PLATFORM_X11,
-    null = PLATFORM_NULL,
-
-    pub fn toInitHintValue(value: Platform) InitHintValue {
-        return @enumFromInt(@intFromEnum(value));
-    }
-};
-
-pub const Action = enum(c_int) {
-    release = RELEASE,
-    press = PRESS,
-    REPEAT = REPEAT,
-};
+pub const InitHint = enums.InitHint;
+pub const InitHintValue = enums.InitHintValue;
+pub const Platform = enums.Platform;
+pub const Action = enums.Action;
+pub const GamepadAction = enums.GamepadAction;
+pub const Hat = flags.Hat;
+pub const Key = enums.Key;
+pub const Mod = flags.Mod;
+pub const MouseButton = enums.MouseButton;
+pub const Joystick = enums.Joystick;
+pub const GamepadButton = enums.GamepadButton;
+pub const GamepadAxis = enums.GamepadAxis;
+pub const Error = enums.Error;
+pub const WindowHint = enums.WindowHint;
+pub const WindowHintValue = enums.WindowHintValue;
 
 // @name GLFW version macros
 
@@ -861,7 +833,7 @@ pub const ANGLE_PLATFORM_TYPE_METAL = 0x00037008;
 pub const WAYLAND_PREFER_LIBDECOR = 0x00038001;
 pub const WAYLAND_DISABLE_LIBDECOR = 0x00038002;
 
-pub const ANY_POSITION = 0x80000000;
+pub const ANY_POSITION: c_uint = 0x80000000;
 
 // @defgroup shapes Standard cursor shapes
 // @brief Standard system cursor shapes.
@@ -1234,7 +1206,7 @@ pub const DeallocateFun = *const fn (block: *anyopaque, user: *anyopaque) callco
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup init
-pub const ErrorFun = *const fn (error_code: c_int, description: [*:0]const u8) callconv(.c) void;
+pub const ErrorFun = *const fn (error_code: Error, description: [*:0]const u8) callconv(.c) void;
 
 /// @brief The function pointer type for window position callbacks.
 ///
@@ -1440,7 +1412,7 @@ pub const WindowContentScaleFun = *const fn (window: *Window, xscale: f32, yscal
 ///  @glfw3 Added window handle and modifier mask parameters.
 ///
 ///  @ingroup input
-pub const MouseButtonFun = *const fn (window: *Window, button: c_int, action: Action, mods: c_int) callconv(.c) void;
+pub const MouseButtonFun = *const fn (window: *Window, button: MouseButton, action: Action, mods: Mod) callconv(.c) void;
 
 /// @brief The function pointer type for cursor position callbacks.
 ///
@@ -1527,7 +1499,7 @@ pub const ScrollFun = *const fn (window: *Window, xoffset: f64, yoffset: f64) ca
 ///  @glfw3 Added window handle, scancode and modifier mask parameters.
 ///
 ///  @ingroup input
-pub const KeyFun = *const fn (window: *Window, key: c_int, scancode: c_int, action: Action, mods: c_int) callconv(.c) void;
+pub const KeyFun = *const fn (window: *Window, key: Key, scancode: c_int, action: Action, mods: Mod) callconv(.c) void;
 
 /// @brief The function pointer type for Unicode character callbacks.
 ///
@@ -1573,7 +1545,7 @@ pub const CharFun = *const fn (window: *Window, codepoint: c_uint) callconv(.c) 
 ///  @since Added in version 3.1.
 ///
 ///  @ingroup input
-pub const CharModsFun = *const fn (window: *Window, codepoint: c_uint, mods: c_int) callconv(.c) void;
+pub const CharModsFun = *const fn (window: *Window, codepoint: c_uint, mods: Mod) callconv(.c) void;
 
 /// @brief The function pointer type for path drop callbacks.
 ///
@@ -1636,7 +1608,7 @@ pub const MonitorFun = *const fn (monitor: *Monitor, event: c_int) callconv(.c) 
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup input
-pub const JoystickFun = *const fn (jid: c_int, event: c_int) callconv(.c) void;
+pub const JoystickFun = *const fn (jid: Joystick, event: c_int) callconv(.c) void;
 
 /// @brief Video mode type.
 ///
@@ -1721,10 +1693,10 @@ pub const Image = extern struct {
 pub const GamepadState = extern struct {
     /// The states of each [gamepad button](@ref gamepad_buttons), `GLFW_PRESS`
     /// or `GLFW_RELEASE`.
-    buttons: [15]u8,
+    buttons: [GamepadButton.last + 1]GamepadAction,
     /// The states of each [gamepad axis](@ref gamepad_axes), in the range -1.0
     /// to 1.0 inclusive.
-    axes: [6]f32,
+    axes: [GamepadAxis.last + 1]f32,
 };
 
 /// @brief Custom heap memory allocator.
@@ -2044,7 +2016,7 @@ pub const getVersionString = f("glfwGetVersionString", fn () callconv(.c) [*:0]c
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup init
-pub const getError = f("glfwGetError", fn (description: *[*:0]const u8) callconv(.c) c_int);
+pub const getError = f("glfwGetError", fn (description: *[*:0]const u8) callconv(.c) Error);
 
 /// @brief Sets the error callback.
 ///
@@ -2620,7 +2592,7 @@ pub const defaultWindowHints = f("glfwDefaultWindowHints", fn () callconv(.c) vo
 ///  @since Added in version 3.0.  Replaces `glfwOpenWindowHint`.
 ///
 ///  @ingroup window
-pub const windowHint = f("glfwWindowHint", fn (hint: c_int, value: c_int) callconv(.c) void);
+pub const windowHint = f("glfwWindowHint", fn (hint: WindowHint, value: WindowHintValue) callconv(.c) void);
 
 /// @brief Sets the specified window hint to the desired value.
 ///
@@ -2657,7 +2629,7 @@ pub const windowHint = f("glfwWindowHint", fn (hint: c_int, value: c_int) callco
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup window
-pub const windowHintString = f("glfwWindowHintString", fn (hint: c_int, value: [*:0]const u8) callconv(.c) void);
+pub const windowHintString = f("glfwWindowHintString", fn (hint: WindowHint, value: [*:0]const u8) callconv(.c) void);
 
 /// @brief Creates a window and its associated context.
 ///
@@ -4353,7 +4325,7 @@ pub const rawMouseMotionSupported = f("glfwRawMouseMotionSupported", fn () callc
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup input
-pub const getKeyName = f("glfwGetKeyName", fn (key: c_int, scancode: c_int) callconv(.c) [*:0]const u8);
+pub const getKeyName = f("glfwGetKeyName", fn (key: Key, scancode: c_int) callconv(.c) [*:0]const u8);
 
 /// @brief Returns the platform-specific scancode of the specified key.
 ///
@@ -4379,7 +4351,7 @@ pub const getKeyName = f("glfwGetKeyName", fn (key: c_int, scancode: c_int) call
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const getKeyScancode = f("glfwGetKeyScancode", fn (key: c_int) callconv(.c) c_int);
+pub const getKeyScancode = f("glfwGetKeyScancode", fn (key: Key) callconv(.c) c_int);
 
 /// @brief Returns the last reported state of a keyboard key for the specified
 ///  window.
@@ -4417,7 +4389,7 @@ pub const getKeyScancode = f("glfwGetKeyScancode", fn (key: c_int) callconv(.c) 
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup input
-pub const getKey = f("glfwGetKey", fn (window: *Window, key: c_int) callconv(.c) Action);
+pub const getKey = f("glfwGetKey", fn (window: *Window, key: Key) callconv(.c) Action);
 
 /// @brief Returns the last reported state of a mouse button for the specified
 ///  window.
@@ -4445,7 +4417,7 @@ pub const getKey = f("glfwGetKey", fn (window: *Window, key: c_int) callconv(.c)
 ///  @glfw3 Added window handle parameter.
 ///
 ///  @ingroup input
-pub const getMouseButton = f("glfwGetMouseButton", fn (window: *Window, button: c_int) callconv(.c) c_int);
+pub const getMouseButton = f("glfwGetMouseButton", fn (window: *Window, button: MouseButton) callconv(.c) Action);
 
 /// @brief Retrieves the position of the cursor relative to the content area of
 ///  the window.
@@ -4976,7 +4948,7 @@ pub const setDropCallback = f("glfwSetDropCallback", fn (window: *Window, callba
 ///  @since Added in version 3.0.  Replaces `glfwGetJoystickParam`.
 ///
 ///  @ingroup input
-pub const joystickPresent = f("glfwJoystickPresent", fn (jid: c_int) callconv(.c) c_int);
+pub const joystickPresent = f("glfwJoystickPresent", fn (jid: Joystick) callconv(.c) c_int);
 
 /// @brief Returns the values of all axes of the specified joystick.
 ///
@@ -5008,7 +4980,7 @@ pub const joystickPresent = f("glfwJoystickPresent", fn (jid: c_int) callconv(.c
 ///  @since Added in version 3.0.  Replaces `glfwGetJoystickPos`.
 ///
 ///  @ingroup input
-pub const getJoystickAxes = f("glfwGetJoystickAxes", fn (jid: c_int, count: *c_int) callconv(.c) [*]const f32);
+pub const getJoystickAxes = f("glfwGetJoystickAxes", fn (jid: Joystick, count: *c_int) callconv(.c) [*]const f32);
 
 /// @brief Returns the state of all buttons of the specified joystick.
 ///
@@ -5048,7 +5020,7 @@ pub const getJoystickAxes = f("glfwGetJoystickAxes", fn (jid: c_int, count: *c_i
 ///  @glfw3 Changed to return a dynamic array.
 ///
 ///  @ingroup input
-pub const getJoystickButtons = f("glfwGetJoystickButtons", fn (jid: c_int, count: *c_int) callconv(.c) [*]const u8);
+pub const getJoystickButtons = f("glfwGetJoystickButtons", fn (jid: Joystick, count: *c_int) callconv(.c) [*]const u8);
 
 /// @brief Returns the state of all hats of the specified joystick.
 ///
@@ -5104,7 +5076,7 @@ pub const getJoystickButtons = f("glfwGetJoystickButtons", fn (jid: c_int, count
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const getJoystickHats = f("glfwGetJoystickHats", fn (jid: c_int, count: *c_int) callconv(.c) [*]const u8);
+pub const getJoystickHats = f("glfwGetJoystickHats", fn (jid: Joystick, count: *c_int) callconv(.c) [*]const Hat);
 
 /// @brief Returns the name of the specified joystick.
 ///
@@ -5134,7 +5106,7 @@ pub const getJoystickHats = f("glfwGetJoystickHats", fn (jid: c_int, count: *c_i
 ///  @since Added in version 3.0.
 ///
 ///  @ingroup input
-pub const getJoystickName = f("glfwGetJoystickName", fn (jid: c_int) callconv(.c) [*:0]const u8);
+pub const getJoystickName = f("glfwGetJoystickName", fn (jid: Joystick) callconv(.c) [*:0]const u8);
 
 /// @brief Returns the SDL compatible GUID of the specified joystick.
 ///
@@ -5174,7 +5146,7 @@ pub const getJoystickName = f("glfwGetJoystickName", fn (jid: c_int) callconv(.c
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const getJoystickGUID = f("glfwGetJoystickGUID", fn (jid: c_int) callconv(.c) [*:0]const u8);
+pub const getJoystickGUID = f("glfwGetJoystickGUID", fn (jid: Joystick) callconv(.c) [*:0]const u8);
 
 /// @brief Sets the user pointer of the specified joystick.
 ///
@@ -5199,7 +5171,7 @@ pub const getJoystickGUID = f("glfwGetJoystickGUID", fn (jid: c_int) callconv(.c
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const setJoystickUserPointer = f("glfwSetJoystickUserPointer", fn (jid: c_int, pointer: *anyopaque) callconv(.c) void);
+pub const setJoystickUserPointer = f("glfwSetJoystickUserPointer", fn (jid: Joystick, pointer: *anyopaque) callconv(.c) void);
 
 /// @brief Returns the user pointer of the specified joystick.
 ///
@@ -5222,7 +5194,7 @@ pub const setJoystickUserPointer = f("glfwSetJoystickUserPointer", fn (jid: c_in
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const getJoystickUserPointer = f("glfwGetJoystickUserPointer", fn (jid: c_int) callconv(.c) *anyopaque);
+pub const getJoystickUserPointer = f("glfwGetJoystickUserPointer", fn (jid: Joystick) callconv(.c) *anyopaque);
 
 /// @brief Returns whether the specified joystick has a gamepad mapping.
 ///
@@ -5249,7 +5221,7 @@ pub const getJoystickUserPointer = f("glfwGetJoystickUserPointer", fn (jid: c_in
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const joystickIsGamepad = f("glfwJoystickIsGamepad", fn (jid: c_int) callconv(.c) c_int);
+pub const joystickIsGamepad = f("glfwJoystickIsGamepad", fn (jid: Joystick) callconv(.c) c_int);
 
 /// @brief Sets the joystick configuration callback.
 ///
@@ -5348,7 +5320,7 @@ pub const updateGamepadMappings = f("glfwUpdateGamepadMappings", fn (string: [*:
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const getGamepadName = f("glfwGetGamepadName", fn (jid: c_int) callconv(.c) [*:0]const u8);
+pub const getGamepadName = f("glfwGetGamepadName", fn (jid: Joystick) callconv(.c) [*:0]const u8);
 
 /// @brief Retrieves the state of the specified joystick remapped as a gamepad.
 ///
@@ -5385,7 +5357,7 @@ pub const getGamepadName = f("glfwGetGamepadName", fn (jid: c_int) callconv(.c) 
 ///  @since Added in version 3.3.
 ///
 ///  @ingroup input
-pub const getGamepadState = f("glfwGetGamepadState", fn (jid: c_int, state: *GamepadState) callconv(.c) c_int);
+pub const getGamepadState = f("glfwGetGamepadState", fn (jid: Joystick, state: *GamepadState) callconv(.c) c_int);
 
 /// @brief Sets the clipboard to the specified string.
 ///
