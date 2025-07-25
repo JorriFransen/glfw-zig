@@ -37,7 +37,7 @@ pub const Platform = enum(c_int) {
     x11 = glfw.PLATFORM_X11,
     null = glfw.PLATFORM_NULL,
 
-    pub fn toInitHintValue(value: Platform) InitHintValue {
+    pub fn initHint(value: Platform) InitHintValue {
         return @enumFromInt(@intFromEnum(value));
     }
 };
@@ -226,6 +226,28 @@ pub const WindowHintValue = enum(c_int) {
     pub fn fromInt(int: c_int) WindowHintValue {
         return @enumFromInt(int);
     }
+};
+
+pub const CursorShape = enum(c_int) {
+    arrow = glfw.ARROW_CURSOR,
+    ibeam = glfw.IBEAM_CURSOR,
+    crosshair = glfw.CROSSHAIR_CURSOR,
+    pointing_hand = glfw.POINTING_HAND_CURSOR,
+    resize_ew = glfw.RESIZE_EW_CURSOR,
+    resize_ns = glfw.RESIZE_NS_CURSOR,
+    resize_nwse = glfw.RESIZE_NWSE_CURSOR,
+    resize_nesw = glfw.RESIZE_NESW_CURSOR,
+    resize_all = glfw.RESIZE_ALL_CURSOR,
+
+    not_allowed = glfw.NOT_ALLOWED_CURSOR,
+    pub const hresize = glfw.RESIZE_EW_CURSOR;
+    pub const vresize = glfw.RESIZE_NS_CURSOR;
+    pub const hand = glfw.POINTING_HAND_CURSOR;
+};
+
+pub const JoystickEvent = enum(c_int) {
+    connected = glfw.CONNECTED,
+    disconnected = glfw.DISCONNECTED,
 };
 
 pub const Key = enum(c_int) {

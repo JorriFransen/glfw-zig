@@ -34,6 +34,8 @@ pub const GamepadAxis = enums.GamepadAxis;
 pub const Error = enums.Error;
 pub const WindowHint = enums.WindowHint;
 pub const WindowHintValue = enums.WindowHintValue;
+pub const CursorShape = enums.CursorShape;
+pub const JoystickEvent = enums.JoystickEvent;
 
 // @name GLFW version macros
 
@@ -1608,7 +1610,7 @@ pub const MonitorFun = *const fn (monitor: *Monitor, event: c_int) callconv(.c) 
 ///  @since Added in version 3.2.
 ///
 ///  @ingroup input
-pub const JoystickFun = *const fn (jid: Joystick, event: c_int) callconv(.c) void;
+pub const JoystickFun = *const fn (jid: Joystick, event: JoystickEvent) callconv(.c) void;
 
 /// @brief Video mode type.
 ///
@@ -4577,7 +4579,7 @@ pub const createCursor = f("glfwCreateCursor", fn (image: *const Image, xhot: c_
 ///  @since Added in version 3.1.
 ///
 ///  @ingroup input
-pub const createStandardCursor = f("glfwCreateStandardCursor", fn (shape: c_int) callconv(.c) *Cursor);
+pub const createStandardCursor = f("glfwCreateStandardCursor", fn (shape: CursorShape) callconv(.c) *Cursor);
 
 /// @brief Destroys a cursor.
 ///
