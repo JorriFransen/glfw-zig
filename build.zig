@@ -277,7 +277,7 @@ fn pkgConfig(b: *std.Build, pkg: []const u8, flags: []const []const u8) ![]const
             if (code == 0) {
                 const result = try b.allocator.alloc(u8, stdout.len);
                 @memcpy(result, stdout);
-                return stripRight(result);
+                return std.mem.trimEnd(u8, result, &std.ascii.whitespace);
             } else {
                 std.log.err("pkgconf failed with error: {}", .{code});
                 std.log.err("stderr: {s}", .{stderr});
@@ -297,38 +297,21 @@ fn pkgConfig(b: *std.Build, pkg: []const u8, flags: []const []const u8) ![]const
     }
 }
 
-fn stripRight(str: []const u8) []const u8 {
-    var end = str.len;
-
-    var i = str.len;
-    while (i > 0) {
-        i -= 1;
-
-        if (!std.ascii.isWhitespace(str[i])) {
-            break;
-        }
-
-        end -= 1;
-    }
-
-    return str[0..end];
-}
-
 fn readAll(allocator: Allocator, file_opt: ?File) ![]const u8 {
     const file = file_opt orelse return "";
 
-    var read_buf: [1024]u8 = undefined;
-    var result_buf = std.ArrayList(u8){};
-
     var reader = file.reader(&.{});
+    var read_buf: [1024]u8 = undefined;
+    var result = std.ArrayList(u8){};
+
     while (!reader.atEnd()) {
-        const len = reader.readStreaming(&read_buf) catch |e| switch (e) {
-            else => return e,
+        const len = reader.read(&read_buf) catch |e| switch (e) {
             error.EndOfStream => break,
+            else => return e,
         };
 
-        try result_buf.appendSlice(allocator, read_buf[0..len]);
+        try result.appendSlice(allocator, read_buf[0..len]);
     }
 
-    return result_buf.items;
+    return result.items;
 }
